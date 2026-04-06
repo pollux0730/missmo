@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Miss mo?</title>
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1e1e2f, #3a3a5f);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+.card {
+    background: rgba(255,255,255,0.1);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    width: 350px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.btn-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 30px;
+    position: relative;
+    height: 50px;
+}
+
+button {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+#yesBtn { background: #4CAF50; color: white; }
+#noBtn { background: #f44336; color: white; }
+
+/* LYRICS STYLE SAME AS YOUR SAMPLE */
+.lyrics {
+    position: absolute;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.8s;
+    pointer-events: none;
+}
+</style>
+</head>
+<body>
+
+<div class="card" id="card">
+    <h2 id="question">Miss mo?</h2>
+    <div class="btn-container">
+        <button id="yesBtn">Yes</button>
+        <button id="noBtn">No</button>
+    </div>
+</div>
+
+<div id="lyrics" class="lyrics"></div>
+
+<audio id="music" src="Download (2).mp4"></audio>
+
+<script>
+const noBtn = document.getElementById("noBtn");
+const yesBtn = document.getElementById("yesBtn");
+const question = document.getElementById("question");
+const card = document.getElementById("card");
+const lyricsDiv = document.getElementById("lyrics");
+const music = document.getElementById("music");
+
+let noCount = 0;
+let questions = [
+    "Talaga ba??",
+    "Sigurado na???",
+    "Sure na???",
+    "Wehh???"
+];
+
+const positions = [
+    { x: 40, y: -30 },
+    { x: -40, y: 30 },
+    { x: 50, y: 20 },
+    { x: -50, y: -20 },
+    { x: 0, y: -60 },
+    { x: 0, y: 60 }
+];
+
+let lastIndex = -1;
+
+function loopDodge() {
+    if (noBtn.style.position !== "absolute") {
+        noBtn.style.position = "absolute";
+    }
+
+    let newIndex;
+    do {
+        newIndex = Math.floor(Math.random() * positions.length);
+    } while (newIndex === lastIndex);
+
+    lastIndex = newIndex;
+    const pos = positions[newIndex];
+
+    noBtn.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+    noBtn.style.transition = "transform 0.1s ease-out";
+}
+
+function enableDodge() {
+    noBtn.addEventListener("mouseenter", loopDodge);
+    noBtn.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        loopDodge();
+    });
+}
+
+noBtn.addEventListener("click", () => {
+    if (noCount < questions.length) {
+        question.innerText = questions[noCount];
+        noCount++;
+    }
+
+    if (noCount === questions.length) {
+        enableDodge();
+    }
+});
+
+// LYRICS DATA WITH TIMINGS
+// LYRICS DATA WITH BACKGROUND IMAGES
+const lyricsData = [
+    { 
+        text: "Ang pait at ang sakit na dati'y wala naman", 
+        start: 0, 
+        end: 6,
+        bg: "New folder/crying (1).jpg" // replace with your first image path
+    },
+    { 
+        text: "Ngayon ay hindi na mailagan", 
+        start: 6, 
+        end: 12,
+        bg: "New folder/e7f.jpg" // second image
+    },
+    { 
+        text: "Ang tanong na walang sagot", 
+        start: 12, 
+        end: 15,
+        bg: "New folder/fe0bcaf8ebbd43edba2642305026c191.jpg" // third image
+    },
+    { 
+        text: "Luha ang nadudulot sa ating mga mata :(", 
+        start: 15, 
+        end: 999,
+        bg: "New folder/wp7683467.jpg" // ADD your 4th image here
+    }
+];
+
+let currentIndex = -1;
+
+// YES CLICK
+yesBtn.addEventListener("click", () => {
+    card.style.display = "none";
+    music.currentTime = 0;
+    music.play();
+
+    setInterval(() => {
+        const currentTime = music.currentTime;
+        const line = lyricsData.find(l => currentTime >= l.start && currentTime < l.end);
+
+        if (line && lyricsData.indexOf(line) !== currentIndex) {
+            currentIndex = lyricsData.indexOf(line);
+            showLine(line.text, line.bg);
+        }
+    }, 100);
+});
+
+// LINE BY LINE WITH TIMING (PHONE FRIENDLY)
+function showLine(text, bg) {
+    lyricsDiv.style.opacity = 0;
+
+    setTimeout(() => {
+        lyricsDiv.textContent = text;
+        lyricsDiv.style.opacity = 1;
+
+        // SET BACKGROUND IMAGE
+        document.body.style.background = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${bg}')`;
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundPosition = "center";
+    }, 200);
+} 200;
+
+
+// Improve mobile responsiveness
+function isMobile() {
+    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+// Adjust font size for mobile
+if (isMobile()) {
+    lyricsDiv.style.fontSize = "22px";
+}
+
+// Touch support already enabled for dodge button
+</script>
+
+</body>
+</html>
